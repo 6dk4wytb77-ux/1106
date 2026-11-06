@@ -1,6 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-import { firebaseConfig } from "./firebase-config.js";
+let firebaseConfig;
+try {
+  ({ firebaseConfig } = await import("./firebase-config.js"));
+} catch (error) {
+  console.warn("Firebase config is missing. Create firebase-config.js from the provided template.", error);
+  firebaseConfig = { apiKey: "REPLACE_WITH_FIREBASE_API_KEY", authDomain: "REPLACE_WITH_PROJECT.firebaseapp.com", projectId: "REPLACE_WITH_PROJECT_ID", appId: "REPLACE_WITH_FIREBASE_APP_ID" };
+}
 
 const requiredConfig = ["apiKey", "authDomain", "projectId", "appId"];
 const authGate = document.getElementById("authGate");
@@ -101,3 +107,5 @@ function startPlanner(user) {
   $('taskForm').onsubmit=e=>{e.preventDefault();const id=$('taskId').value,d=$('taskDate').value,start=$('taskStart').value,end=$('taskEnd').value,due=$('taskDueDate').value;if(start&&end&&end<=start)return $('formError').textContent='結束時間需要晚於開始時間。';if(due&&due<d)return $('formError').textContent='截止日期不能早於學習日期。';const value={id:id||`task-${Date.now()}`,name:$('taskName').value.trim(),subject:$('taskSubject').value,date:d,dueDate:due,start,end,duration:Number($('taskDuration').value)||'',priority:$('taskPriority').value,notes:$('taskNotes').value.trim(),done:false},i=state.tasks.findIndex(t=>t.id===id);if(i>=0){value.done=state.tasks[i].done;state.tasks[i]=value}else state.tasks.push(value);selected=d;const m=monday(offset(weekOffset*7)),diff=Math.round((date(d)-m)/86400000);if(diff<0||diff>6)weekOffset=Math.round((date(d)-date(offset(0)))/604800000);save();closeModal();render();toast(i>=0?'任務已更新':'任務已新增，開始你的學習計畫吧！')};render();
 }
 function offset(n){const d=new Date();d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+
+
