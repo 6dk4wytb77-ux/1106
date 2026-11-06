@@ -3,3 +3,4 @@ Thumbs.db
 *.log
 prd_render/
 node_modules/
+firebase-config.js
